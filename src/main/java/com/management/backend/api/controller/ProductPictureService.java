@@ -34,12 +34,18 @@ public class ProductPictureService {
     @ApiOperation(value="获取产品图片列表信息", notes="获取所有产品图片的详细信息",produces="application/json",consumes = "application/json")
     @GetMapping(value = "/productpictures")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "获取的页码", required = true,paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页数据条数", required = true,paramType = "query", dataType = "int")
-    })
-    public PageInfo<ProductPicture> getProducts(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize){
-        PageHelper.startPage(pageNum,pageSize);
+            @ApiImplicitParam(name = "pageNum", value = "获取的页码", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页数据条数", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "productId", value = "所属产品id", required = false, paramType = "query", dataType = "int")
 
+    })
+    public PageInfo<ProductPicture> getProducts(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize, @RequestParam(value = "productId", defaultValue = "-1") int productId) {
+        PageHelper.startPage(pageNum,pageSize);
+        ProductPictureExample productPictureExample = new ProductPictureExample();
+        if (productId > -1) {
+            ProductPictureExample.Criteria criteria = productPictureExample.createCriteria();
+            criteria.andProductIdEqualTo(productId);
+        }
         ArrayList<ProductPicture> productPictures = (ArrayList<ProductPicture>) productPictureMapper.selectByExample(new ProductPictureExample());
         PageInfo<ProductPicture> appsPageInfo = new PageInfo<ProductPicture>(productPictures);
         return appsPageInfo;

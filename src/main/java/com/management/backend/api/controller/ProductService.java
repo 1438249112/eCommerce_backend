@@ -48,7 +48,7 @@ public class ProductService {
     @ApiOperation(value="创建产品", notes="创建一个新的产品",produces="application/json",consumes = "application/json")
     @PostMapping(value = "/product")
     public Resp saveProduct(@RequestBody @ApiParam(name="产品对象",value="传入json格式;id会自动生成，不用输入",required=true) Product product){
-           productMapper.insert(product);
+        productMapper.insert(product);
         return   new Resp(product.getId());
 
     }

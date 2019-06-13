@@ -23,23 +23,29 @@ public class ProductTypeService {
     @ApiImplicitParam(name = "productTypeId", value = "产品ID", required = true,paramType = "path", dataType = "Integer")
     @GetMapping(value = "/producttypes/{productTypeId}")
     public ProductType getProductType(@PathVariable("productTypeId") int productTypeId){
-        ProductType productType = productTypeMapper.selectByPrimaryKey(productTypeId);
-        return productType;
+        return productTypeMapper.selectByPrimaryKey(productTypeId);
     }
 
     @ApiOperation(value="获取产品列表信息", notes="获取所有产品的详细信息",produces="application/json",consumes = "application/json")
     @GetMapping(value = "/producttypes")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "获取的页码", required = true,paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页数据条数", required = true,paramType = "query", dataType = "int")
+            @ApiImplicitParam(name = "pageNum", value = "获取的页码", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页数据条数", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pid", value = "父类型id", required = false, paramType = "query", dataType = "Integer")
     })
-    public PageInfo<ProductType> getProducts(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize){
+    public PageInfo<ProductType> getProducts(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize, @RequestParam(value = "pid", defaultValue = "-1") Integer pid) {
         PageHelper.startPage(pageNum,pageSize);
+        ProductTypeExample productTypeExample = new ProductTypeExample();
+        if (pid > -1) {
+            ProductTypeExample.Criteria criteria = productTypeExample.createCriteria();
+            criteria.andPidEqualTo(pid);
+        }
 
-        ArrayList<ProductType> ProductTypes = (ArrayList<ProductType>) productTypeMapper.selectByExample(new ProductTypeExample());
+        ArrayList<ProductType> ProductTypes = (ArrayList<ProductType>) productTypeMapper.selectByExample(productTypeExample);
         PageInfo<ProductType> appsPageInfo = new PageInfo<ProductType>(ProductTypes);
         return appsPageInfo;
     }
+
 
     @ApiOperation(value="创建产品", notes="创建一个新的产品",produces="application/json",consumes = "application/json")
     @PostMapping(value = "/producttype")
